@@ -78,7 +78,7 @@ const getUser = (req, res, next) => {
   if (req.params.userId) userId = req.params.userId;
   else userId = req.user._id;
   userModel.findById(userId).orFail(new NotFoundError('Пользователь не найден'))
-    .then((user) => res.status(SUCCESSFUL_REQUEST).res.send({ data: user }))
+    .then((user) => res.status(SUCCESSFUL_REQUEST).send(user))
     .catch((err) => {
       if (err instanceof NotFoundError) {
         return next(err);
@@ -92,9 +92,11 @@ const getUser = (req, res, next) => {
 
 const updateUserInfo = (req, res, next) => {
   const { name, email } = req.body;
-  userModel.findByIdAndUpdate(req.user._id, { name, email }, { new: true })
-    .orFail(new NotFoundError('Пользователь не найден'))
-    .then((user) => res.status(SUCCESSFUL_REQUEST).res.send({ data: user }))
+
+  userModel
+    .findByIdAndUpdate(req.user._id, { name, email }, { new: true })
+    .orFail(new NotFoundError(`Пользователь с id:${req.user._id} не найден`))
+    .then((user) => res.status(SUCCESSFUL_REQUEST).send(user))
     .catch((err) => {
       if (err instanceof NotFoundError) {
         return next(err);

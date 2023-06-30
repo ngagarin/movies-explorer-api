@@ -22,7 +22,7 @@
 
 ### Просмотр сайта:
 
-Деплой доступен по [ссылке](https://diplom.nomoreparties.sbs/)
+Деплой доступен по [ссылке](https://diplom.nomoreparties.sbs/api)
 
 #### Инструкция по установке бэкенда:
 

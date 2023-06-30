@@ -3,14 +3,14 @@ const movieModel = require('../models/movieModel');
 const { SUCCESSFUL_REQUEST, CREATED } = require('../utils/constants');
 const {
   BadRequestError,
-  ForbidenError,
+  ForbiddenError,
   NotFoundError,
 } = require('../utils/errors/index');
 
 const getMovies = (req, res, next) => {
   movieModel
-    .find({}).sort({ createdAt: -1 })
-    .then((movies) => res.status(SUCCESSFUL_REQUEST).res.send({ data: movies }))
+    .find({})
+    .then((movies) => res.status(SUCCESSFUL_REQUEST).json(movies))
     .catch(next);
 };
 
@@ -46,7 +46,7 @@ const createMovie = (req, res, next) => {
       nameEN,
     })
     .then((movie) => {
-      res.status(CREATED).res.send(movie);
+      res.status(CREATED).json(movie);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -64,13 +64,13 @@ const deleteMovie = (req, res, next) => {
     .orFail(new NotFoundError('Фильм не найден'))
     .then((movie) => {
       if (req.user._id !== movie.owner.toString()) {
-        return Promise.reject(new ForbidenError('Нельзя удалять чужой фильм'));
+        return Promise.reject(new ForbiddenError('Нельзя удалять чужой фильм'));
       }
-      return movieModel.findByIdAndRemove(req.params.movieId);
+      return movieModel.findByIdAndRemove(movie);
     })
-    .then(() => res.status(SUCCESSFUL_REQUEST).res.send({ message: 'Фильм удален' }))
+    .then(() => res.status(SUCCESSFUL_REQUEST).json({ message: 'Фильм удален' }))
     .catch((err) => {
-      if (err instanceof NotFoundError || err instanceof ForbidenError) {
+      if (err instanceof NotFoundError || err instanceof ForbiddenError) {
         return next(err);
       }
       if (err instanceof mongoose.Error.CastError) {
