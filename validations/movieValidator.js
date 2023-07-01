@@ -1,7 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 const { URL_PATTERN } = require('../utils/constants');
 
-const validateCreateMovie = () => celebrate({
+const validateCreateMovie = celebrate({
   body: Joi.object().keys({
     country: Joi.string().required(),
     director: Joi.string().required(),
@@ -17,7 +17,7 @@ const validateCreateMovie = () => celebrate({
   }),
 });
 
-const validateDeleteMovie = () => celebrate({
+const validateDeleteMovie = celebrate({
   params: Joi.object().keys({
     movieId: Joi.string().length(24).hex(),
   }),

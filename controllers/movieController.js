@@ -5,6 +5,7 @@ const {
   BadRequestError,
   ForbiddenError,
   NotFoundError,
+  InternalServerError,
 } = require('../utils/errors/index');
 
 const getMovies = (req, res, next) => {
@@ -52,7 +53,7 @@ const createMovie = (req, res, next) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return next(new BadRequestError('Переданы некорректные данные фильма'));
       }
-      return next(new Error('Произошла ошибка на сервере.'));
+      return next(new InternalServerError('Произошла ошибка на сервере.'));
     });
 };
 
@@ -76,7 +77,7 @@ const deleteMovie = (req, res, next) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError('Переданы некорректные данные фильма'));
       }
-      return next(new Error('Произошла ошибка на сервере.'));
+      return next(new InternalServerError('Произошла ошибка на сервере.'));
     });
 };
 

@@ -8,6 +8,7 @@ const {
   BadRequestError,
   NotFoundError,
   ConflictError,
+  InternalServerError,
 } = require('../utils/errors/index');
 
 const login = (req, res, next) => {
@@ -28,7 +29,15 @@ const login = (req, res, next) => {
       })
         .send({ _id, name, email });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof NotFoundError) {
+        return next(err);
+      }
+      if (err instanceof mongoose.Error.ValidationError) {
+        return next(new BadRequestError('Переданы некорректные данные пользователя'));
+      }
+      return next(new InternalServerError('Произошла ошибка на сервере.'));
+    });
 };
 
 const signout = (req, res) => {
@@ -69,7 +78,7 @@ const createUser = (req, res, next) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return next(new BadRequestError('Переданы некорректные данные пользователя'));
       }
-      return next(new Error('Произошла ошибка на сервере.'));
+      return next(new InternalServerError('Произошла ошибка на сервере.'));
     });
 };
 
@@ -86,7 +95,7 @@ const getUser = (req, res, next) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError('Переданы некорректные данные пользователя'));
       }
-      return next(new Error('Произошла ошибка на сервере.'));
+      return next(new InternalServerError('Произошла ошибка на сервере.'));
     });
 };
 
@@ -107,7 +116,7 @@ const updateUserInfo = (req, res, next) => {
       if (err.code === 11000) {
         return next(new ConflictError('Пользователь с указанным email уже зарегистрирован'));
       }
-      return next(new Error('Произошла ошибка на сервере.'));
+      return next(new InternalServerError('Произошла ошибка на сервере.'));
     });
 };
 
