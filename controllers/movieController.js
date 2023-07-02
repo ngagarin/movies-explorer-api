@@ -67,7 +67,8 @@ const deleteMovie = (req, res, next) => {
       if (req.user._id !== movie.owner.toString()) {
         return Promise.reject(new ForbiddenError('Нельзя удалять чужой фильм'));
       }
-      return movieModel.findByIdAndRemove(movie);
+      return movieModel
+        .findByIdAndRemove(movie);
     })
     .then(() => res.status(SUCCESSFUL_REQUEST).json({ message: 'Фильм удален' }))
     .catch((err) => {
@@ -77,7 +78,7 @@ const deleteMovie = (req, res, next) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError('Переданы некорректные данные фильма'));
       }
-      return next(new InternalServerError('Произошла ошибка на сервере.'));
+      return next(new Error('Произошла ошибка на сервере.'));
     });
 };
 

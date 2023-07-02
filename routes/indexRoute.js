@@ -18,8 +18,8 @@ router.use('/', authRouter);
 router.use(validateToken);
 router.use('/users', userRouter);
 router.use('/movies', movieRouter);
-router.use('/', clearToken, signoutRouter);
 router.use('*', (req, res, next) => next(new NotFoundError('По указанному пути ничего не найдено')));
+router.use('/', clearToken, signoutRouter);
 router.use(errors());
 
 module.exports = router;

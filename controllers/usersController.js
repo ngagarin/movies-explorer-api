@@ -18,6 +18,7 @@ const login = (req, res, next) => {
     .findUserByCredentials(email, password)
     .then((user) => {
       const { _id, name, email } = user;
+
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
@@ -29,15 +30,7 @@ const login = (req, res, next) => {
       })
         .send({ _id, name, email });
     })
-    .catch((err) => {
-      if (err instanceof NotFoundError) {
-        return next(err);
-      }
-      if (err instanceof mongoose.Error.ValidationError) {
-        return next(new BadRequestError('Переданы некорректные данные пользователя'));
-      }
-      return next(new InternalServerError('Произошла ошибка на сервере.'));
-    });
+    .catch(next);
 };
 
 const signout = (req, res) => {
@@ -86,7 +79,9 @@ const getUser = (req, res, next) => {
   let userId;
   if (req.params.userId) userId = req.params.userId;
   else userId = req.user._id;
-  userModel.findById(userId).orFail(new NotFoundError('Пользователь не найден'))
+
+  userModel
+    .findById(userId).orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => res.status(SUCCESSFUL_REQUEST).send(user))
     .catch((err) => {
       if (err instanceof NotFoundError) {
