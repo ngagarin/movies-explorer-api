@@ -58,13 +58,14 @@ const createMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
+  const userId = req.user._id;
   const { movieId } = req.params;
 
   movieModel
     .findById(movieId)
     .orFail(new NotFoundError('Фильм не найден'))
     .then((movie) => {
-      if (req.user._id !== movie.owner.toString()) {
+      if (userId !== movie.owner.toString()) {
         return Promise.reject(new ForbiddenError('Нельзя удалять чужой фильм'));
       }
       return movieModel

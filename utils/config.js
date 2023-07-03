@@ -1,16 +1,9 @@
 require('dotenv').config();
-const rateLimit = require('express-rate-limit');
 
-const PORT = process.env.PORT || 3100;
-const NODE_ENV = process.env.NODE_ENV;
-const JWT_SECRET = process.env.JWT_SECRET;
-const DB_URL = process.env.DB_URL;
-
-const LIMITER = rateLimit({
-  max: 500,
-  windowMs: 15 * 60 * 1000,
-  message: 'Превышено ограничение количества запросов. Пожалуйста, повторите попытку позже.',
-});
+const { PORT } = process.env;
+const { NODE_ENV } = process.env;
+const { JWT_SECRET } = process.env;
+const { BITFILMSDB } = process.env;
 
 const CORS_DATA = {
   credentials: true,
@@ -22,7 +15,6 @@ module.exports = {
   PORT,
   NODE_ENV,
   JWT_SECRET,
-  DB_URL,
-  LIMITER,
+  BITFILMSDB,
   CORS_DATA,
 };

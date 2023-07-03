@@ -17,8 +17,6 @@ const login = (req, res, next) => {
   return userModel
     .findUserByCredentials(email, password)
     .then((user) => {
-      const { _id, name, email } = user;
-
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
@@ -28,7 +26,13 @@ const login = (req, res, next) => {
         sameSite: true,
         secure: true,
       })
-        .send({ _id, name, email });
+        .send({
+          user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+          },
+        });
     })
     .catch(next);
 };
@@ -81,7 +85,8 @@ const getUser = (req, res, next) => {
   else userId = req.user._id;
 
   userModel
-    .findById(userId).orFail(new NotFoundError('Пользователь не найден'))
+    .findById(userId)
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => res.status(SUCCESSFUL_REQUEST).send(user))
     .catch((err) => {
       if (err instanceof NotFoundError) {
@@ -96,10 +101,15 @@ const getUser = (req, res, next) => {
 
 const updateUserInfo = (req, res, next) => {
   const { name, email } = req.body;
+  const userId = req.user._id;
 
   userModel
-    .findByIdAndUpdate(req.user._id, { name, email }, { new: true })
-    .orFail(new NotFoundError(`Пользователь с id:${req.user._id} не найден`))
+    .findByIdAndUpdate(
+      userId,
+      { name, email },
+      { new: true, runValidators: true },
+    )
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => res.status(SUCCESSFUL_REQUEST).send(user))
     .catch((err) => {
       if (err instanceof NotFoundError) {
