@@ -7,6 +7,13 @@ const {
   NotFoundError,
   InternalServerError,
 } = require('../utils/errors/index');
+const {
+  MOVIE_BAD_REQUEST_MSG,
+  MOVIE_NOT_FOUND_MSG,
+  MOVIE_FORBIDEN_MSG,
+  INTERNAL_ERROR_MSG,
+  MOVIE_DELETED_MSG,
+} = require('../utils/constants');
 
 const getMovies = (req, res, next) => {
   movieModel
@@ -51,9 +58,9 @@ const createMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return next(new BadRequestError('Переданы некорректные данные фильма'));
+        return next(new BadRequestError(MOVIE_BAD_REQUEST_MSG));
       }
-      return next(new InternalServerError('Произошла ошибка на сервере.'));
+      return next(new InternalServerError(INTERNAL_ERROR_MSG));
     });
 };
 
@@ -63,23 +70,23 @@ const deleteMovie = (req, res, next) => {
 
   movieModel
     .findById(movieId)
-    .orFail(new NotFoundError('Фильм не найден'))
+    .orFail(new NotFoundError(MOVIE_NOT_FOUND_MSG))
     .then((movie) => {
       if (userId !== movie.owner.toString()) {
-        return Promise.reject(new ForbiddenError('Нельзя удалять чужой фильм'));
+        return Promise.reject(new ForbiddenError(MOVIE_FORBIDEN_MSG));
       }
       return movieModel
         .findByIdAndRemove(movie);
     })
-    .then(() => res.status(SUCCESSFUL_REQUEST).json({ message: 'Фильм удален' }))
+    .then(() => res.status(SUCCESSFUL_REQUEST).json(MOVIE_DELETED_MSG))
     .catch((err) => {
       if (err instanceof NotFoundError || err instanceof ForbiddenError) {
         return next(err);
       }
       if (err instanceof mongoose.Error.CastError) {
-        return next(new BadRequestError('Переданы некорректные данные фильма'));
+        return next(new BadRequestError(MOVIE_BAD_REQUEST_MSG));
       }
-      return next(new Error('Произошла ошибка на сервере.'));
+      return next(new Error(INTERNAL_ERROR_MSG));
     });
 };
 

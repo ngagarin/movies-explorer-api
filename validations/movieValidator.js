@@ -66,7 +66,7 @@ const validateCreateMovie = dataValidate(validateCreateMovieSchema);
 
 const validateDeleteMovie = celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().length(24).hex(),
+    movieId: Joi.string().hex(),
   }),
 });
 

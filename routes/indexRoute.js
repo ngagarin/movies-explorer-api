@@ -7,6 +7,7 @@ const signoutRouter = require('./signoutRoute');
 const { validateToken } = require('../middlewares/auth');
 const { clearToken } = require('../middlewares/signout');
 const { NotFoundError } = require('../utils/errors/index');
+const { URL_NOT_FOUND_MSG } = require('../utils/constants');
 
 router.get('/crash-test', () => {
   setTimeout(() => {
@@ -19,7 +20,7 @@ router.use(validateToken);
 router.use('/users', userRouter);
 router.use('/movies', movieRouter);
 router.use('/signout', clearToken, signoutRouter);
-router.use('*', (req, res, next) => next(new NotFoundError('По указанному пути ничего не найдено')));
+router.use('*', (req, res, next) => next(new NotFoundError(URL_NOT_FOUND_MSG)));
 
 router.use(errors());
 

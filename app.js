@@ -21,12 +21,12 @@ mongoose.connect(BITFILMSDB, {
 const app = express();
 
 app.use(cors(CORS_DATA));
+app.use(requestLogger);
 app.use(helmet());
 app.use(limiter);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(requestLogger);
 app.use('/api', router);
 app.use(errorHandler);
 app.use(errorLogger);

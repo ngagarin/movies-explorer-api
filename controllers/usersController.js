@@ -10,6 +10,13 @@ const {
   ConflictError,
   InternalServerError,
 } = require('../utils/errors/index');
+const {
+  USER_UNAUTHORIZED_MSG,
+  USER_CONFLICT_MSG,
+  USER_BAD_REQUEST_MSG,
+  INTERNAL_ERROR_MSG,
+  USER_NOT_FOUND_MSG,
+} = require('../utils/constants');
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -27,11 +34,9 @@ const login = (req, res, next) => {
         secure: true,
       })
         .send({
-          user: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-          },
+          _id: user._id,
+          name: user.name,
+          email: user.email,
         });
     })
     .catch(next);
@@ -43,7 +48,7 @@ const signout = (req, res) => {
     sameSite: true,
     secure: true,
   });
-  return res.status(SUCCESSFUL_REQUEST).json({ message: 'Деавторизация прошла успешно.' });
+  return res.status(SUCCESSFUL_REQUEST).json(USER_UNAUTHORIZED_MSG);
 };
 
 const createUser = (req, res, next) => {
@@ -70,12 +75,12 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        return next(new ConflictError('Пользователь с указанным email уже зарегистрирован'));
+        return next(new ConflictError(USER_CONFLICT_MSG));
       }
       if (err instanceof mongoose.Error.ValidationError) {
-        return next(new BadRequestError('Переданы некорректные данные пользователя'));
+        return next(new BadRequestError(USER_BAD_REQUEST_MSG));
       }
-      return next(new InternalServerError('Произошла ошибка на сервере.'));
+      return next(new InternalServerError(INTERNAL_ERROR_MSG));
     });
 };
 
@@ -86,16 +91,16 @@ const getUser = (req, res, next) => {
 
   userModel
     .findById(userId)
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(new NotFoundError(USER_NOT_FOUND_MSG))
     .then((user) => res.status(SUCCESSFUL_REQUEST).send(user))
     .catch((err) => {
       if (err instanceof NotFoundError) {
         return next(err);
       }
       if (err instanceof mongoose.Error.CastError) {
-        return next(new BadRequestError('Переданы некорректные данные пользователя'));
+        return next(new BadRequestError(USER_BAD_REQUEST_MSG));
       }
-      return next(new InternalServerError('Произошла ошибка на сервере.'));
+      return next(new InternalServerError(INTERNAL_ERROR_MSG));
     });
 };
 
@@ -109,7 +114,7 @@ const updateUserInfo = (req, res, next) => {
       { name, email },
       { new: true, runValidators: true },
     )
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(new NotFoundError(USER_NOT_FOUND_MSG))
     .then((user) => res.status(SUCCESSFUL_REQUEST).send(user))
     .catch((err) => {
       if (err instanceof NotFoundError) {
@@ -119,9 +124,9 @@ const updateUserInfo = (req, res, next) => {
         return next(new BadRequestError('Переданы некорректные данные пользователя'));
       }
       if (err.code === 11000) {
-        return next(new ConflictError('Пользователь с указанным email уже зарегистрирован'));
+        return next(new ConflictError(USER_CONFLICT_MSG));
       }
-      return next(new InternalServerError('Произошла ошибка на сервере.'));
+      return next(new InternalServerError(INTERNAL_ERROR_MSG));
     });
 };
 
